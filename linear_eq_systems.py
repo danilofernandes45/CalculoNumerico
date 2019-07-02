@@ -1,4 +1,4 @@
-import math
+from math import sqrt
 
 #Iterative Methods to solve a linear equations system -> O(n²)
 
@@ -82,13 +82,43 @@ def norm(x):
 
 	return sqrt(sum)
 
-def gauss_seidel(matrix, vector, eps, k_max):
+def dist(x1, x2):
+	sum = 0
+	for i in range(len(x1)):
+		sum += (x1[i] - x2[i])**2
+
+	return sqrt(sum)
+
+def nonzero_diagonal(matrix):
+
+	for i in range(len(matrix)):
+		if( matrix[i][i] == 0 ):
+			for j in range(i, len(matrix)):
+				if( matrix[j][i] != 0 ):
+					aux = matrix[i].copy()
+					matrix[i] = matrix[j].copy()
+					matrix[j] = aux.copy()
+
+				if( matrix[i][i] == 0):
+					for j in range(i):
+						if( matrix[j][i] != 0 and matrix[i][j] != 0):
+							aux = matrix[i].copy()
+							matrix[i] = matrix[j].copy()
+							matrix[j] = aux.copy()
+
+	return matrix
+
+def gauss_seidel(matrix, vector, eps, kmax):
+
+	matrix = nonzero_diagonal(matrix)
+
+	x_1 = len(vector)*[0]
 	x_0 = len(vector)*[1]
 	k = 0
 
-	while(norm(x_1 - x_0) >= eps and k <= k_max):
+	while(dist(x_1, x_0) >= eps and k <= kmax):
 
-		x_1 = len(vector)*[0]
+		x_0 = x_1.copy()
 
 		for i in range(len(x_1)):
 			x_1[i] = vector[i]
@@ -103,19 +133,23 @@ def gauss_seidel(matrix, vector, eps, k_max):
 
 			x_1[i] /= matrix[i][i]
 
-		x_0 = x_1
+		k += 1
 
 	print("Número de iterações: %d"%k)
 
 	return x_0
 
-def gauss_jacobi(matrix, vector, eps, k_max):
+def gauss_jacobi(matrix, vector, eps, kmax):
+
+	matrix = nonzero_diagonal(matrix)
+
+	x_1 = len(vector)*[0]
 	x_0 = len(vector)*[1]
 	k = 0
 
-	while(norm(x_1 - x_0) >= eps and k <= k_max):
+	while(dist(x_1, x_0) >= eps and k <= kmax):
 
-		x_1 = len(vector)*[0]
+		x_0 = x_1.copy()
 
 		for i in range(len(x_1)):
 			x_1[i] = vector[i]
@@ -130,15 +164,14 @@ def gauss_jacobi(matrix, vector, eps, k_max):
 
 			x_1[i] /= matrix[i][i]
 
-		x_0 = x_1
+		k += 1
 
-	print("Número de iterações: %d"%k)
-
+	print("Numero de iterações: %d"%k)
 	return x_0
 
 #Direct Method to solve a linear equations system -> O(n³)
 
- def schedule(matrix, vector):
+def schedule(matrix, vector):
 
  	for j in range( len(vector) - 1 ):
 
@@ -155,7 +188,7 @@ def gauss_jacobi(matrix, vector, eps, k_max):
  	return matrix, vector
 
 
- def solve_triangular_system(matrix, vector):
+def solve_triangular_system(matrix, vector):
 
  	size = len(vector)
  	x = size * [0]
@@ -177,3 +210,18 @@ def gauss_elimination(matrix, vector):
 
 	matrix, vector = schedule(matrix, vector)
 	return solve_triangular_system(matrix, vector)
+
+
+matrix = [[3, 1, 1], [0, 2, 1], [0, 0, 1]]
+vector = [1, 0, 1]
+
+print("Gauss Elimination Method")
+print(gauss_elimination(matrix, vector))
+print()
+
+print("Gauss-Jacobi Method")
+print(gauss_jacobi(matrix, vector, 0.0001, 10000))
+print()
+
+print("Gauss-Seidel Method")
+print(gauss_seidel(matrix, vector, 0.0001, 10000))
