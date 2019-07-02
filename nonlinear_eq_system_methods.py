@@ -74,13 +74,11 @@ def gauss_seidel(matrix, vector, eps, kmax):
 
 		k += 1
 
-	print("Número de iterações: %d"%k)
-
 	return x_0
 
 def function(x):
 	y1 = x[0]**2 + x[1]
-	y2 = x[0] * x[1]
+	y2 = x[0] * x[1] + 1
 
 	return [ y1, y2 ]
 
@@ -112,14 +110,14 @@ def modified_newton_rapson(function, jacobian, x, eps, kmax):
 
 	k = 0
 
-	delta_x = 1
+	delta_x = len(x)*[1]
 
 	jacobian = jacobian(x)
 
-	while(delta_x >= eps and k < kmax):
+	while(norm(delta_x) >= eps and k < kmax):
 		
 		delta_x = gauss_seidel(jacobian, neg(function(x)), eps, kmax)
-		x = x + delta_x
+		x = sum(x, delta_x)
 
 		k += 1
 
@@ -136,4 +134,6 @@ print(gauss_seidel(matrix, vector, 0.0001, 1000))
 
 print(nonzero_diagonal([[0, 1, 2], [1, 0, 2], [0, 0, 1]]))
 
-print(newton_rapson(function, jacobian, [0, 0], 0.0001, 1000))
+print(newton_rapson(function, jacobian, [1, 0], 0.00001, 10000))
+
+print(modified_newton_rapson(function, jacobian, [1, 0], 0.00001, 10000))
