@@ -130,7 +130,7 @@ def gauss_seidel(matrix, vector, eps, kmax):
 
 	return x_0
 
-
+#O(n²)
 def vandermond_method(vec_x, vec_y):
 
     matrix = []
@@ -138,11 +138,10 @@ def vandermond_method(vec_x, vec_y):
         row = [vec_x[i]**j for j in range(len(vec_x))]
         matrix.append(row)
 
-    return gauss_seidel(matrix, vec_y, 0.00001, 10000)
-
+    return gauss_seidel(matrix, vec_y, 0.000001, 10000)
 
 def newton_method(vec_x, vec_y):
-    matrix = [len(vec_x + 1)*[0] for i in range(len(vec_x))]
+    matrix = [(len(vec_x) + 1)*[0] for i in range(len(vec_x))]
 
     for i in range(len(vec_x)):
         matrix[i][0] = vec_x[i]
@@ -150,21 +149,54 @@ def newton_method(vec_x, vec_y):
 
     for j in range(2, len(vec_x) + 1):
         for i in range(j-1, len(vec_x)):
-            matrix[i][j] = ( matrix[i][j-1] - matrix[i-1][j-1] ) / (matrix[i][0] - matrix[i-1][0])
+            matrix[i][j] = ( matrix[i][j-1] - matrix[i-1][j-1] ) / (matrix[i][0] - matrix[i-j+1][0])
 
     operators_dif = []
     for i in range(len(vec_x)):
         operators_dif.append(matrix[i][i+1])
 
-    return operators_dif
+    return get_coef_polyn(operators_dif, vec_x)
+
+def get_coef_polyn(consts, vec_x):
+
+	polyn = [consts[0]]
+	actual = [1]
+
+	for i in range(1, len(consts)):
+
+		actual.insert(0, 0)
+		aux1 = actual[-1]
+		for k in reversed(range(len(actual) - 1)):
+			aux2 = actual[k]
+			actual[k] -= vec_x[i-1] * aux1
+			aux1 = aux2
+
+			polyn[k] += consts[i] * actual[k]
+
+		polyn.append(consts[i])
+
+	return polyn
 
 
-
-vec_x = [0, 1, 3, 4, 6, 10]
-vec_y = [1, 0.5, 0.7, 3, 3.5, 2.37]
+vec_x = [3, 7, 14, 21, 28]
+vec_y1 = [14.4025, 27.425, 34.49, 34.375, 36.165]
+vec_y2 = [21.845, 31.28, 35.16, 38.1, 39.98]
+vec_y3 = [19.0045, 26.745, 31.3, 34.18, 35.665]
 
 print("Result from Vandermond Method")
-print(vandermond_method(vec_x, vec_y))
+print(vandermond_method(vec_x, vec_y1))
 
 print("Result from Newton Method (Operators)")
-print(newton_method(vec_x, vec_y))
+print(newton_method(vec_x, vec_y1))
+
+print("Result from Vandermond Method")
+print(vandermond_method(vec_x, vec_y2))
+
+print("Result from Newton Method (Operators)")
+print(newton_method(vec_x, vec_y2))
+
+print("Result from Vandermond Method")
+print(vandermond_method(vec_x, vec_y3))
+
+print("Result from Newton Method (Operators)")
+print(newton_method(vec_x, vec_y3))
