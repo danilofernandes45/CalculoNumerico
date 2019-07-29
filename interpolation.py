@@ -131,7 +131,7 @@ def gauss_seidel(matrix, vector, eps, kmax):
 	return x_0
 
 #O(n²)
-def vandermond_method(vec_x, vec_y):
+def mne_vandermonde(vec_x, vec_y):
 
     matrix = []
     for i in range(len(vec_x)):
@@ -140,7 +140,7 @@ def vandermond_method(vec_x, vec_y):
 
     return gauss_seidel(matrix, vec_y, 0.000001, 10000)
 
-def newton_method(vec_x, vec_y):
+def mne_newton(vec_x, vec_y):
     matrix = [(len(vec_x) + 1)*[0] for i in range(len(vec_x))]
 
     for i in range(len(vec_x)):
