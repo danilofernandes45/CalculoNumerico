@@ -1,4 +1,5 @@
-from math import sqrt
+
+from math import sqrt, log, exp
 
 def row_criteria(matrix):
 
@@ -119,14 +120,7 @@ def gauss_seidel(matrix, vector, eps, kmax):
 
 
 			for j in range(i+1, len(x_1)):
-
-			x_1[i] /= matrix[i][i]
-
-		k += 1
-
-	print("Número de iterações: %d"%k)
-
-	return x_0				x_1[i] -= matrix[i][j] * x_0[j]
+				x_1[i] -= matrix[i][j] * x_0[j]
 
 
 			x_1[i] /= matrix[i][i]
@@ -138,15 +132,7 @@ def gauss_seidel(matrix, vector, eps, kmax):
 	return x_0
 
 
-def exponencial_adjust(vec_x, vec_y):
-
-    new_vec_y = [ ln(y) for y in vec_y ]
-    coef = linear_regretion(vec_x, new_vec_y)
-
-    return [exp(coef[0]), coef[1]]
-
-
-def linear_regretion(vec_x, vec_y):
+def linear_regression(vec_x, vec_y):
 
     N = len(vec_x)
     sum_xy = 0
@@ -156,15 +142,45 @@ def linear_regretion(vec_x, vec_y):
 
     for i in range(N):
 
-        sum_xy = vec_x[i] * vec_y[i]
-        sum_x = vec_x[i]
-        sum_y = vec_y[i]
-        sum_xx = vec_x[i]**2
+        sum_xy += vec_x[i] * vec_y[i]
+        sum_x += vec_x[i]
+        sum_y += vec_y[i]
+        sum_xx += vec_x[i]**2
 
     a1 = (sum_xy - sum_x*sum_y/N) / (sum_xx - (sum_x**2)/N)
     a0 = (sum_y - a1*sum_x)/N
 
     return [a0, a1]
+
+def exponencial_adjust(vec_x, vec_y):
+
+    new_vec_y = [ log(y) for y in vec_y ]
+    coef = linear_regression(vec_x, new_vec_y)
+
+    return [exp(coef[0]), coef[1]]
+
+def ln_adjust(vec_x, vec_y):
+
+    new_vec_x = [ log(x) for x in vec_x ]
+    coef = linear_regression(new_vec_x, vec_y)
+
+    return [coef[1], exp(coef[0]/coef[1])]
+
+def hyperbolic_adjust(vec_x, vec_y):
+
+    new_vec_x = [ (1/x) for x in vec_x ]
+    coef = linear_regression(new_vec_x, vec_y)
+
+    return coef
+
+def potential_adjust(vec_x, vec_y):
+
+	new_vec_y = [ log(y) for y in vec_y ]
+	new_vec_x = [ log(x) for x in vec_x ]
+	coef = linear_regression(new_vec_x, new_vec_y)
+
+	return [exp(coef[0]), coef[1]]
+
 
 def polinomial_adjust(vec_x, vec_y, degree):
 
@@ -178,10 +194,10 @@ def polinomial_adjust(vec_x, vec_y, degree):
         for i in range(j+1):
             sum = 0
             for k in vec_x:
-                sum += vec_x**(i+1)
+                sum += k**(i+1)
 
-            matrix[i][j] = matrix[j][i] = sum
-
+            matrix[i][j] = sum
+            matrix[j][i] = sum
     #Generate Vector
     vector = []
 
@@ -192,3 +208,27 @@ def polinomial_adjust(vec_x, vec_y, degree):
         vector.append(sum)
 
     return gauss_seidel(matrix, vector, 0.00001, 10000)
+
+#Usage
+vec_x = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3]
+vec_y = [0.525, 0.844, 1.280, 1.863, 2.632, 3.638, 4.944, 6.626, 8.778, 11.508, 14.948]
+
+print("Linear Regression")
+print(linear_regression(vec_x, vec_y))
+print("Linear Adjust")
+print(polinomial_adjust(vec_x, vec_y, 1))
+print("Parabolic Adjust")
+print(polinomial_adjust(vec_x, vec_y, 2))
+print("Exponential Adjust")
+print(exponencial_adjust(vec_x, vec_y))
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.scatter(vec_x, vec_y)
+
+x = np.arrage(0, 3, 0.01)
+y1 = np.poly1d(linear_regression(vec_x, vec_y))
+
+
+plt.show()
