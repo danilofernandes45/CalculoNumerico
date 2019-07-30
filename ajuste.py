@@ -194,7 +194,7 @@ def polinomial_adjust(vec_x, vec_y, degree):
         for i in range(j+1):
             sum = 0
             for k in vec_x:
-                sum += k**(i+1)
+                sum += k**(i+j)
 
             matrix[i][j] = sum
             matrix[j][i] = sum
@@ -227,8 +227,17 @@ import numpy as np
 
 plt.scatter(vec_x, vec_y)
 
-x = np.arrage(0, 3, 0.01)
-y1 = np.poly1d(linear_regression(vec_x, vec_y))
+x = np.arange(1, 3, 0.01)
+y1 = np.poly1d(linear_regression(vec_x, vec_y)[::-1])
+y2 = np.poly1d(polinomial_adjust(vec_x, vec_y, 2)[::-1])
+plt.plot(x, y1(x))
+plt.plot(x, y2(x))
+
+print(y2(2))
+
+coef_exp = exponencial_adjust(vec_x, vec_y)
+
+plt.plot(x, coef_exp[0]*np.exp(coef_exp[1]*x))
 
 
 plt.show()
