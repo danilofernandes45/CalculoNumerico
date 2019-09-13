@@ -102,7 +102,7 @@ def newton_rapson(function, jacobian, x, eps, kmax):
 	delta_x = len(x)*[1]
 
 	while(norm(delta_x) >= eps and k < kmax):
-		
+
 		delta_x = gauss_seidel(jacobian(x), neg(function(x)), eps, kmax)
 		x = sum(x, delta_x)
 
@@ -120,7 +120,7 @@ def modified_newton_rapson(function, jacobian, x, eps, kmax):
 	jacobian = jacobian(x)
 
 	while(norm(delta_x) >= eps and k < kmax):
-		
+
 		delta_x = gauss_seidel(jacobian, neg(function(x)), eps, kmax)
 		x = sum(x, delta_x)
 
@@ -147,7 +147,7 @@ def function(coef):
 
 	return func
 
-		
+
 
 def jacobian(coef):
 	matrix = [[0,0,0,0],[0,0,0,0],[0,0,0,0], [0,0,0,0]]
@@ -177,7 +177,7 @@ def jacobian(coef):
 
 	matrix[3][0] = matrix[0][3]
 	matrix[3][1] = matrix[1][3]
-	matrix[3][2] = matrix[2][3]		
+	matrix[3][2] = matrix[2][3]
 
 	return matrix
 
@@ -198,12 +198,13 @@ def jacobian(coef):
 def fun(coef, x):
 	return (coef[2] - coef[3] / (coef[0] * x + coef[1]))
 
-def quadratic_medium_error(coef, fun):
+def mean_squared_error(coef, fun):
 	sum = 0
 	for i in range(len(vec_x)):
 		sum += (fun(coef, vec_x[i]) - vec_y[i]) ** 2
 
-	return (sum / len(vec_x))
+	num_estimated_params = 4
+	return (sum / (len(vec_x) - num_estimated_params))
 
 # init = [1,2,3,4]
 # solution = modified_newton_rapson(function, jacobian, init, 10**(-5), 1000000)
@@ -215,19 +216,22 @@ def quadratic_medium_error(coef, fun):
 # print(quadratic_medium_error(solution, fun))
 
 solution = []
-qme = 10000000
-for i in range(100):
+mse = 10000000
+for i in range(1000):
 	init = [10 * random(), 10 * random(), 10 * random(), 10 * random()]
-	print(init)
+#	print(init)
 	result = modified_newton_rapson(function, jacobian, init, 10**(-5), 100000)
-	new_qme = quadratic_medium_error(result, fun)
-	print(result)
-	print(new_qme)
+	new_mse = mean_squared_error(result, fun)
 
-	if(new_qme < qme):
+	if(new_mse < mse):
 		solution = result
+		mse = new_mse
+
+	print("Iteration: %d"%i)
+	print(solution)
+	print("MSE: %f"%mse)
 
 print("Solution:")
 print(solution)
-print("Quadratic Medium Error:")
-print(qme)
+print("Mean Squared Error:")
+print(mse)
